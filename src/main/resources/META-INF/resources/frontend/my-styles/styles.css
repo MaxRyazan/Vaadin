@@ -13,6 +13,10 @@
     width: 130px;
     margin-top: 25px;
 }
+.showHideButton{
+    width: 24rem;
+    margin-top: 0;
+}
 .searchBtn {
     border: 1px solid green;
     color: green;
@@ -40,3 +44,4 @@
     background-color: lightgreen;
     font-weight: bold;
 }
+

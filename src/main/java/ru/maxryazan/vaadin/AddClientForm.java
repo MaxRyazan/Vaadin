@@ -1,8 +1,6 @@
 package ru.maxryazan.vaadin;
 
-import com.vaadin.flow.component.ComponentEvent;
-import com.vaadin.flow.component.ComponentEventListener;
-import com.vaadin.flow.component.Key;
+import com.vaadin.flow.component.*;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.formlayout.FormLayout;
@@ -38,6 +36,7 @@ public class AddClientForm extends FormLayout {
     Button closeBtn = new Button("Close");
 
 
+
     public AddClientForm(){
         binder.bindInstanceFields(this);
         phoneNumber.addClassName("inputFieldsColor");
@@ -51,7 +50,6 @@ public class AddClientForm extends FormLayout {
                 email,
                 createBtns());
     }
-
     public HorizontalLayout createBtns(){
         saveBtn.addThemeVariants(ButtonVariant.LUMO_SUCCESS, ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_PRIMARY);
         saveBtn.addClassName("btn");
@@ -76,6 +74,7 @@ public class AddClientForm extends FormLayout {
         return new HorizontalLayout(saveBtn, deleteBtn, closeBtn);
     }
 
+
     public void setClient(Client client) {
         this.client = client;
         binder.readBean(client);
@@ -89,6 +88,7 @@ public class AddClientForm extends FormLayout {
             e.printStackTrace();
         }
     }
+
 
 
 
@@ -118,8 +118,8 @@ public class AddClientForm extends FormLayout {
         DeleteEvent(AddClientForm addClientForm, Client client) {
             super(addClientForm, client);
         }
-
     }
+
 
     public static class CloseEvent extends ClientFormEvent {
         CloseEvent(AddClientForm addClientForm) {

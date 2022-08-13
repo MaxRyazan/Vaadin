@@ -7,6 +7,7 @@ import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.dependency.StyleSheet;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -48,21 +49,42 @@ public class ListView extends VerticalLayout {
         addClientForm.addListener(AddClientForm.CloseEvent.class, e -> closeEditor());
         addClientForm.addClassName("client-form");
 
-        FlexLayout content = new FlexLayout(clientGrid, addClientForm);
-        content.setFlexGrow(2, clientGrid);
+        VerticalLayout menu = new VerticalLayout(createShowHideButton(), addClientForm);
+        menu.setWidth("25rem");
+        menu.addClassName("menu");
+
+        FlexLayout content = new FlexLayout(clientGrid, menu);
+        content.setFlexGrow(3, clientGrid);
         content.setFlexGrow(1, addClientForm);
         content.setFlexShrink(0, addClientForm);
         content.addClassNames("content", "gap-m");
         content.setSizeFull();
-
 
         add(printToolBar(), content);
         updateList();
         closeEditor();
         clientGrid.asSingleSelect().addValueChangeListener(event ->
                 editClient(event.getValue()));
+
+
     }
 
+    Button showHideButton = new Button("Показать/скрыть", new Icon(VaadinIcon.BULLETS));
+    public HorizontalLayout createShowHideButton(){
+        showHideButton.addThemeVariants(ButtonVariant.LUMO_CONTRAST, ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_PRIMARY);
+        showHideButton.addClassName("showHideButton");
+        showHideButton.setIconAfterText(true);
+        showHideButton.addClickListener(buttonClickEvent -> buttonClick());
+        return  new HorizontalLayout(showHideButton);
+    }
+
+    public void buttonClick() {
+        if(addClientForm.isVisible()){
+            addClientForm.setVisible(false);
+        } else {
+            addClientForm.setVisible(true);
+        }
+    }
 
     public void gridConfig(){    // создали таблицу
         clientGrid.addClassName("clientGrid");
