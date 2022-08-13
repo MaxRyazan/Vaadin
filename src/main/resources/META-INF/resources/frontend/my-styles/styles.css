@@ -1,0 +1,42 @@
+.client-form {
+    margin-left: 1%;
+    height: 500px;
+    font-weight: bold;
+    color: green;
+    text-align: center;
+}
+
+.clientGrid{
+    text-align: center;
+}
+.btn{
+    width: 130px;
+    margin-top: 25px;
+}
+.searchBtn {
+    border: 1px solid green;
+    color: green;
+    width: 130px;
+    margin-top: 6px;
+}
+.inputField{
+    border: 1px solid green;
+    border-radius: 7px;
+    padding: 0;
+    width: 250px;
+    margin-top: 5px;
+    height: 30px;
+    background-color: white;
+}
+#column{
+    background-color: lightgreen;
+    font-weight: bold;
+}
+.test{
+    font-weight: bold;
+    color: green;
+}
+.header{
+    background-color: lightgreen;
+    font-weight: bold;
+}

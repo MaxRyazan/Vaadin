@@ -1,16 +1,22 @@
 package ru.maxryazan.vaadin;
 
 
+import com.vaadin.flow.component.Html;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.dependency.StyleSheet;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.component.textfield.TextFieldVariant;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.theme.Theme;
 import org.springframework.context.annotation.Scope;
 import ru.maxryazan.vaadin.model.Client;
 import javax.annotation.security.PermitAll;
@@ -22,7 +28,7 @@ import javax.annotation.security.PermitAll;
 @Route("")
 @PageTitle("Clients | Vaadin CRM")
 @PermitAll
-@StyleSheet("/ru/maxryazan/vaadin/style.css")
+@CssImport("./my-styles/styles.css")
 public class ListView extends VerticalLayout {
     Grid<Client> clientGrid = new Grid<>(Client.class);
     TextField searchField = new TextField();
@@ -40,7 +46,7 @@ public class ListView extends VerticalLayout {
         addClientForm.addListener(AddClientForm.SaveEvent.class, this::saveClient);
         addClientForm.addListener(AddClientForm.DeleteEvent.class, this::deleteClient);
         addClientForm.addListener(AddClientForm.CloseEvent.class, e -> closeEditor());
-        addClientForm.addClassNames("ms-2", "color: red");
+        addClientForm.addClassName("client-form");
 
         FlexLayout content = new FlexLayout(clientGrid, addClientForm);
         content.setFlexGrow(2, clientGrid);
@@ -64,18 +70,33 @@ public class ListView extends VerticalLayout {
         clientGrid.setColumns("id", "phoneNumber","firstName", "lastName", "email", "balance");
         clientGrid.getColumns().forEach(clientColumn -> clientColumn.setAutoWidth(true));
         clientGrid.setHeight("100%");
+        clientGrid.getColumnByKey("id").setHeader(new Html
+                ("<div style='color: green; font-weight: bold; background-color: LightCyan;'>id</div>"));
+        clientGrid.getColumnByKey("phoneNumber").setHeader(new Html
+                ("<div style='color: green; font-weight: bold; background-color: LightCyan;'>Phone number</div>"));
+        clientGrid.getColumnByKey("firstName").setHeader(new Html
+                ("<div style='color: green; font-weight: bold; background-color: LightCyan;'>First name</div>"));
+        clientGrid.getColumnByKey("lastName").setHeader(new Html
+                ("<div style='color: green; font-weight: bold; background-color: LightCyan;'>Last name</div>"));
+        clientGrid.getColumnByKey("email").setHeader(new Html
+                ("<div style='color: green; font-weight: bold; background-color: LightCyan;'>Email</div>"));
+        clientGrid.getColumnByKey("balance").setHeader(new Html
+                ("<div style='color: green; font-weight: bold; background-color: LightCyan;'>Balance</div>"));
     }
 
 
     public HorizontalLayout printToolBar(){   // гориз. "хидер" с поиском и кнопкой
-        searchField.setPlaceholder("8...");
+        searchField.setPrefixComponent(VaadinIcon.SEARCH.create());
         searchField.setClearButtonVisible(true);
         searchField.setValueChangeMode(ValueChangeMode.LAZY);
         searchField.addValueChangeListener(e -> updateList());
+        searchField.addClassName("inputField");
+        searchField.addThemeVariants(TextFieldVariant.LUMO_SMALL);
 
         Button findClientBtn = new Button("Search");
         findClientBtn.addClickListener(click -> addClient());
-
+        findClientBtn.addClassName("searchBtn");
+        findClientBtn.addThemeVariants(ButtonVariant.LUMO_SMALL);
         HorizontalLayout toolbar = new HorizontalLayout(searchField, findClientBtn);
         toolbar.addClassName("toolbar");
         return toolbar;
