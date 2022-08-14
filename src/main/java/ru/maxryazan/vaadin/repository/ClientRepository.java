@@ -13,4 +13,7 @@ public interface ClientRepository extends JpaRepository<Client, Long> {
 
     @Query("select c from Client c WHERE c.phoneNumber = (:searchTerm)")
     List<Client> search(@Param("searchTerm") String searchTerm);
+
+    Client findByPhoneNumber(String phone);
+    Client findByEmail(String email);
 }

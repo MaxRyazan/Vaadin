@@ -39,15 +39,4 @@ public class Client {
     @Column(name = "balance_eur", nullable = false)
     private double balanceEUR = 0;
 
-    public Client(String phoneNumber, String firstName, String lastName, String email,
-                  double balance, String pinCode, double balanceUSD, double balanceEUR) {
-        this.phoneNumber = phoneNumber;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.email = email;
-        this.balance = balance;
-        this.pinCode = pinCode;
-        this.balanceUSD = balanceUSD;
-        this.balanceEUR = balanceEUR;
-    }
 }

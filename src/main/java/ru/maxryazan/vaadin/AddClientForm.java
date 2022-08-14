@@ -1,6 +1,8 @@
 package ru.maxryazan.vaadin;
 
-import com.vaadin.flow.component.*;
+import com.vaadin.flow.component.ComponentEvent;
+import com.vaadin.flow.component.ComponentEventListener;
+import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.formlayout.FormLayout;
@@ -13,15 +15,17 @@ import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.ValidationException;
 import com.vaadin.flow.shared.Registration;
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import org.springframework.context.annotation.Bean;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import ru.maxryazan.vaadin.configuration.Beans;
 import ru.maxryazan.vaadin.model.Client;
-import ru.maxryazan.vaadin.repository.ClientRepository;
+import ru.maxryazan.vaadin.service.CrmService;
 
 
 public class AddClientForm extends FormLayout {
-     private Client client;
+    private Client client;
+
+    private final CrmService crmService;
 
     Binder<Client> binder = new BeanValidationBinder<>(Client.class);
 
@@ -36,13 +40,10 @@ public class AddClientForm extends FormLayout {
     Button closeBtn = new Button("Close");
 
 
+    public AddClientForm(CrmService crmService) {
+        this.crmService = crmService;
 
-    public AddClientForm(){
         binder.bindInstanceFields(this);
-        phoneNumber.addClassName("inputFieldsColor");
-        firstName.addClassName("inputFieldsColor");
-        lastName.addClassName("inputFieldsColor");
-        email.addClassName("inputFieldsColor");
 
         add(phoneNumber,
                 firstName,
@@ -50,7 +51,8 @@ public class AddClientForm extends FormLayout {
                 email,
                 createBtns());
     }
-    public HorizontalLayout createBtns(){
+
+    public HorizontalLayout createBtns() {
         saveBtn.addThemeVariants(ButtonVariant.LUMO_SUCCESS, ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_PRIMARY);
         saveBtn.addClassName("btn");
         saveBtn.setIconAfterText(true);
@@ -81,22 +83,45 @@ public class AddClientForm extends FormLayout {
     }
 
     private void validateAndSave() {
-        try {
-            binder.writeBean(client);
-            fireEvent(new SaveEvent(this, client));
-        } catch (ValidationException e) {
-            e.printStackTrace();
+        if (checkPhoneNumber(phoneNumber.getValue()) && isUniquePhone(phoneNumber.getValue()) && isUniqueEmail(email.getValue())) {
+            BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+            Client cl = new Client();
+            cl.setPhoneNumber(phoneNumber.getValue());
+            cl.setFirstName(firstName.getValue());
+            cl.setLastName(lastName.getValue());
+            cl.setEmail(email.getValue());
+            cl.setBalance(0);
+            cl.setBalanceEUR(0);
+            cl.setBalanceUSD(0);
+            cl.setPinCode(passwordEncoder.encode("123"));
+            try {
+                binder.writeBean(cl);
+                fireEvent(new SaveEvent(this, cl));
+            } catch (ValidationException e) {
+                System.out.println("Validate and save error");
+                e.printStackTrace();
+            }
+        } else {
+            try {
+                if (checkPhoneNumber(phoneNumber.getValue())) {
+                    binder.writeBean(client);
+                    fireEvent(new SaveEvent(this, client));
+                }
+                else throw  new IllegalArgumentException("phone not valid");
+            }
+            catch(ValidationException e){
+                System.out.println("Validate and save error");
+                e.printStackTrace();
+            }
+
         }
     }
-
-
-
 
     /* ------------------------------------------------------------------------------- */
 
 
     public static abstract class ClientFormEvent extends ComponentEvent<AddClientForm> {
-        private Client client;
+        private final Client client;
 
         protected ClientFormEvent(AddClientForm addClientForm, Client client) {
             super(addClientForm, false);
@@ -130,5 +155,25 @@ public class AddClientForm extends FormLayout {
     public <T extends ComponentEvent<?>> Registration addListener(Class<T> eventType,
                                                                   ComponentEventListener<T> listener) {
         return getEventBus().addListener(eventType, listener);
+    }
+
+    @Bean
+    public BCryptPasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+    public boolean checkPhoneNumber(String phoneNumber) {
+        String validatingPhone = phoneNumber.replace(" ", "");
+        String regex = "\\d+";
+        return (validatingPhone.matches(regex)
+                && (validatingPhone.length() == 11)
+                && (validatingPhone.startsWith("8")));
+
+    }
+    public boolean isUniquePhone(String phone){
+      return crmService.findByPhoneNumber(phone) == null;
+    }
+    public boolean isUniqueEmail(String email){
+        return crmService.findByEmail(email) == null;
     }
 }

@@ -5,7 +5,6 @@ import com.vaadin.flow.component.Html;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dependency.CssImport;
-import com.vaadin.flow.component.dependency.StyleSheet;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -17,12 +16,14 @@ import com.vaadin.flow.component.textfield.TextFieldVariant;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import com.vaadin.flow.theme.Theme;
+import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Scope;
+import ru.maxryazan.vaadin.configuration.Beans;
 import ru.maxryazan.vaadin.model.Client;
+import ru.maxryazan.vaadin.service.CrmService;
+
 import javax.annotation.security.PermitAll;
-
-
 
 @org.springframework.stereotype.Component
 @Scope("prototype")
@@ -31,6 +32,7 @@ import javax.annotation.security.PermitAll;
 @PermitAll
 @CssImport("./my-styles/styles.css")
 public class ListView extends VerticalLayout {
+
     Grid<Client> clientGrid = new Grid<>(Client.class);
     TextField searchField = new TextField();
     AddClientForm addClientForm;
@@ -42,7 +44,7 @@ public class ListView extends VerticalLayout {
         addClassName("list-view");
         setSizeFull();
         gridConfig();
-        addClientForm = new AddClientForm();
+        addClientForm = new AddClientForm(service);
         addClientForm.setWidth("25rem");
         addClientForm.addListener(AddClientForm.SaveEvent.class, this::saveClient);
         addClientForm.addListener(AddClientForm.DeleteEvent.class, this::deleteClient);
@@ -54,10 +56,6 @@ public class ListView extends VerticalLayout {
         menu.addClassName("menu");
 
         FlexLayout content = new FlexLayout(clientGrid, menu);
-        content.setFlexGrow(3, clientGrid);
-        content.setFlexGrow(1, addClientForm);
-        content.setFlexShrink(0, addClientForm);
-        content.addClassNames("content", "gap-m");
         content.setSizeFull();
 
         add(printToolBar(), content);
@@ -69,7 +67,7 @@ public class ListView extends VerticalLayout {
 
     }
 
-    Button showHideButton = new Button("Показать/скрыть", new Icon(VaadinIcon.BULLETS));
+    Button showHideButton = new Button("Добавить/редактировать клиента", new Icon(VaadinIcon.BULLETS));
     public HorizontalLayout createShowHideButton(){
         showHideButton.addThemeVariants(ButtonVariant.LUMO_CONTRAST, ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_PRIMARY);
         showHideButton.addClassName("showHideButton");
@@ -79,11 +77,7 @@ public class ListView extends VerticalLayout {
     }
 
     public void buttonClick() {
-        if(addClientForm.isVisible()){
-            addClientForm.setVisible(false);
-        } else {
-            addClientForm.setVisible(true);
-        }
+        addClientForm.setVisible(!addClientForm.isVisible());
     }
 
     public void gridConfig(){    // создали таблицу
@@ -126,7 +120,8 @@ public class ListView extends VerticalLayout {
 
 
     private void saveClient(AddClientForm.SaveEvent event) {
-        service.saveClient(event.getClient());
+        Client client = event.getClient();
+        service.saveClient(client);
         updateList();
         closeEditor();
     }
@@ -161,4 +156,5 @@ public class ListView extends VerticalLayout {
     private void updateList() {
         clientGrid.setItems(service.findAllClients(searchField.getValue()));
     }
+
 }
