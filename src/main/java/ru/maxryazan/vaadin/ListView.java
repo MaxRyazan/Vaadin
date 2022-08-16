@@ -5,6 +5,7 @@ import com.vaadin.flow.component.Html;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dependency.CssImport;
+import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -16,11 +17,9 @@ import com.vaadin.flow.component.textfield.TextFieldVariant;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import lombok.RequiredArgsConstructor;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Scope;
-import ru.maxryazan.vaadin.configuration.Beans;
 import ru.maxryazan.vaadin.model.Client;
+import ru.maxryazan.vaadin.service.CreditService;
 import ru.maxryazan.vaadin.service.CrmService;
 
 import javax.annotation.security.PermitAll;
@@ -36,26 +35,42 @@ public class ListView extends VerticalLayout {
     Grid<Client> clientGrid = new Grid<>(Client.class);
     TextField searchField = new TextField();
     AddClientForm addClientForm;
-    CrmService service;
+    NewCreditForm newCreditForm;
+    private final CrmService service;
 
 
-    public ListView(CrmService service) {  // конструктор класса
+    public ListView(CrmService service, CreditService creditService) {  // конструктор класса
         this.service = service;
         addClassName("list-view");
         setSizeFull();
         gridConfig();
         addClientForm = new AddClientForm(service);
+        newCreditForm = new NewCreditForm(service, creditService);
+
+        newCreditForm.setWidth("25rem");
         addClientForm.setWidth("25rem");
         addClientForm.addListener(AddClientForm.SaveEvent.class, this::saveClient);
         addClientForm.addListener(AddClientForm.DeleteEvent.class, this::deleteClient);
         addClientForm.addListener(AddClientForm.CloseEvent.class, e -> closeEditor());
         addClientForm.addClassName("client-form");
 
-        VerticalLayout menu = new VerticalLayout(createShowHideButton(), addClientForm);
+        showHideButton.setText("Редактировать/добавить клиента");
+        showHideButton2.setText("Оформить кредит");
+        showHideButton.addClickListener(buttonClickEvent -> buttonClick(addClientForm));
+        showHideButton2.addClickListener(buttonClickEvent -> buttonClick(newCreditForm));
+
+        VerticalLayout menu = new VerticalLayout(showHideButton, addClientForm);
+        VerticalLayout addCredit = new VerticalLayout(showHideButton2, newCreditForm);
         menu.setWidth("25rem");
         menu.addClassName("menu");
+        addCredit.setWidth("25rem");
+        addCredit.addClassName("menu");
 
-        FlexLayout content = new FlexLayout(clientGrid, menu);
+        VerticalLayout twoMenus = new VerticalLayout(menu, addCredit);
+        twoMenus.setWidth("25rem");
+        twoMenus.addClassName("menu");
+
+        FlexLayout content = new FlexLayout(clientGrid, twoMenus);
         content.setSizeFull();
 
         add(printToolBar(), content);
@@ -67,17 +82,19 @@ public class ListView extends VerticalLayout {
 
     }
 
-    Button showHideButton = new Button("Добавить/редактировать клиента", new Icon(VaadinIcon.BULLETS));
-    public HorizontalLayout createShowHideButton(){
-        showHideButton.addThemeVariants(ButtonVariant.LUMO_CONTRAST, ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_PRIMARY);
-        showHideButton.addClassName("showHideButton");
-        showHideButton.setIconAfterText(true);
-        showHideButton.addClickListener(buttonClickEvent -> buttonClick());
-        return  new HorizontalLayout(showHideButton);
+    Button showHideButton = createShowHideButton();
+    Button showHideButton2 = createShowHideButton();
+    public Button createShowHideButton(){
+        Button button = new Button();
+        button.addThemeVariants(ButtonVariant.LUMO_CONTRAST, ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_PRIMARY);
+        button.addClassName("showHideButton");
+        button.setIconAfterText(true);
+        button.setIcon(new Icon(VaadinIcon.BULLETS));
+        return button;
     }
 
-    public void buttonClick() {
-        addClientForm.setVisible(!addClientForm.isVisible());
+    public void buttonClick(FormLayout formLayout) {
+        formLayout.setVisible(!formLayout.isVisible());
     }
 
     public void gridConfig(){    // создали таблицу

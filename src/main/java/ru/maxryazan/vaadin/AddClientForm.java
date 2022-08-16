@@ -17,7 +17,6 @@ import com.vaadin.flow.data.binder.ValidationException;
 import com.vaadin.flow.shared.Registration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import ru.maxryazan.vaadin.configuration.Beans;
 import ru.maxryazan.vaadin.model.Client;
 import ru.maxryazan.vaadin.service.CrmService;
 
@@ -83,7 +82,7 @@ public class AddClientForm extends FormLayout {
     }
 
     private void validateAndSave() {
-        if (checkPhoneNumber(phoneNumber.getValue()) && isUniquePhone(phoneNumber.getValue()) && isUniqueEmail(email.getValue())) {
+        if (crmService.checkPhoneNumber(phoneNumber.getValue()) && isUniquePhone(phoneNumber.getValue()) && isUniqueEmail(email.getValue())) {
             BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
             Client cl = new Client();
             cl.setPhoneNumber(phoneNumber.getValue());
@@ -103,7 +102,7 @@ public class AddClientForm extends FormLayout {
             }
         } else {
             try {
-                if (checkPhoneNumber(phoneNumber.getValue())) {
+                if (crmService.checkPhoneNumber(phoneNumber.getValue())) {
                     binder.writeBean(client);
                     fireEvent(new SaveEvent(this, client));
                 }
@@ -162,14 +161,7 @@ public class AddClientForm extends FormLayout {
         return new BCryptPasswordEncoder();
     }
 
-    public boolean checkPhoneNumber(String phoneNumber) {
-        String validatingPhone = phoneNumber.replace(" ", "");
-        String regex = "\\d+";
-        return (validatingPhone.matches(regex)
-                && (validatingPhone.length() == 11)
-                && (validatingPhone.startsWith("8")));
 
-    }
     public boolean isUniquePhone(String phone){
       return crmService.findByPhoneNumber(phone) == null;
     }

@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import javax.persistence.*;
+import java.util.List;
 
 @Entity
 @Getter
@@ -38,5 +39,8 @@ public class Client {
 
     @Column(name = "balance_eur", nullable = false)
     private double balanceEUR = 0;
+
+    @OneToMany(mappedBy = "borrower", fetch = FetchType.LAZY)
+    private List<Credit> credits;
 
 }

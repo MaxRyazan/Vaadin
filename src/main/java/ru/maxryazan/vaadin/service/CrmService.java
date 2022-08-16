@@ -44,5 +44,14 @@ public class CrmService {
         clientRepository.save(client);
     }
 
+    public boolean checkPhoneNumber(String phoneNumber) {
+        String validatingPhone = phoneNumber.replace(" ", "");
+        String regex = "\\d+";
+        return (validatingPhone.matches(regex)
+                && (validatingPhone.length() == 11)
+                && (validatingPhone.startsWith("8")));
+
+    }
+
 
 }
