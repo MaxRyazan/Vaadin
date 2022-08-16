@@ -3,7 +3,6 @@ package ru.maxryazan.vaadin.service;
 import org.springframework.stereotype.Service;
 import ru.maxryazan.vaadin.model.Credit;
 import ru.maxryazan.vaadin.repository.CreditRepository;
-
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Random;
@@ -28,15 +27,8 @@ public class CreditService {
               sb.append(random.nextInt(10));
           }
       }
-      while (!isUnique(sb.toString()));
+      while (creditRepository.existsByNumberOfCreditContract(sb.toString()));
         return sb.toString();
-    }
-    public boolean isUnique(String num){
-        return findByNumberOfCreditContract(num);
-    }
-
-    private boolean findByNumberOfCreditContract(String num) {
-        return creditRepository.findByNumberOfCreditContract(num) == null;
     }
 
     public String generateDateDMY(){

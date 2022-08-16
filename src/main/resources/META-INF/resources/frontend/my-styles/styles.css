@@ -1,6 +1,6 @@
 .client-form {
     margin-left: 1%;
-    height: 500px;
+    height: 400px;
     font-weight: bold;
     color: green;
     text-align: center;
@@ -11,7 +11,7 @@
 }
 .btn{
     width: 130px;
-    margin-top: 25px;
+    margin-top: 15px;
 }
 .showHideButton{
     width: 24rem;

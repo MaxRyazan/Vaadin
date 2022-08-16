@@ -5,5 +5,5 @@ import org.springframework.stereotype.Repository;
 import ru.maxryazan.vaadin.model.Credit;
 @Repository
 public interface CreditRepository extends JpaRepository<Credit, Long> {
-    Credit findByNumberOfCreditContract(String num);
+    boolean existsByNumberOfCreditContract(String number);
 }

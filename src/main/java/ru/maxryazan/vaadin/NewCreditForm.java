@@ -24,14 +24,16 @@ public class NewCreditForm extends FormLayout {
     private final CrmService crmService;
     private final CreditService creditService;
 
+    Credit credit;
+
     TextField sumOfCredit = new TextField("Сумма кредита");
     NumberField creditPercent = new NumberField("Процент по кредиту");
     TextField numberOfPays = new TextField("Количество платежей");
     TextField borrowerPhone = new TextField("Телефон заёмщика");
     TextField borrowerEmail = new TextField("Эл. почта заёмщика");
 
-    Button ok = new Button("Confirm");
-    Button close = new Button("Close");
+    Button ok = new Button("Оформить");
+    Button close = new Button("Отмена");
 
     Binder<Credit> binder = new BeanValidationBinder<>(Credit.class);
 
@@ -57,11 +59,19 @@ public class NewCreditForm extends FormLayout {
     }
 
     private void cancelCredit() {
+        setValuesToDefault();
     }
 
+    public void setValuesToDefault(){
+        sumOfCredit.setValue("");
+        creditPercent.setValue((double) 0);
+        numberOfPays.setValue("");
+        borrowerPhone.setValue("");
+        borrowerEmail.setValue("");
+    }
 
     private void confirmCredit() {
-        Credit credit = new Credit();
+         credit = new Credit();
         if (crmService.checkPhoneNumber(borrowerPhone.getValue())) {
             Client client = crmService.findByPhoneNumber(borrowerPhone.getValue());
             if(!client.getEmail().equals(borrowerEmail.getValue())){
@@ -78,6 +88,7 @@ public class NewCreditForm extends FormLayout {
             credit.setBorrower(client);
             credit.setStatus(Status.ACTIVE);
             creditService.save(credit);
+            setValuesToDefault();
         }
     }
     public <T extends ComponentEvent<?>> Registration addListener(Class<T> eventType,
